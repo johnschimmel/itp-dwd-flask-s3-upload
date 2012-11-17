@@ -74,7 +74,12 @@ Open your .gitignore file and add '.env' on a new line. Save the file.
 	.env
 
 
-### Step 5: Start your servers
+### Step 5: Register with Amazon Web Services
+
+** INFORMATION WILL BE ADDED SOON
+
+
+### Step 6: Start your servers
 
 	. start
 
