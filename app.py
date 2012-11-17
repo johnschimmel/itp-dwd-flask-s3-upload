@@ -69,7 +69,7 @@ def index():
 
 			return filename
 		else:
-			return "something's weird " + file.filename
+			return "uhoh there was an error " + file.filename
 
 
 
@@ -90,7 +90,7 @@ def page_not_found(error):
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+           filename.lower().rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 # --------- Server On ----------
 # start the webserver
