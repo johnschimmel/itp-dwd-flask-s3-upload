@@ -13,7 +13,8 @@ class Comment(mongoengine.EmbeddedDocument):
 class Photo(mongoengine.Document):
 
 	title = mongoengine.StringField(max_length=120, required=True)
-	creator = mongoengine.StringField(max_length=120, required=True, verbose_name="Photographer name")
+	description = mongoengine.StringField()
+	postedby = mongoengine.StringField(max_length=120, required=True, verbose_name="Your name")
 	
 	tags = mongoengine.ListField( mongoengine.StringField())
 
@@ -26,8 +27,15 @@ class Photo(mongoengine.Document):
 	timestamp = mongoengine.DateTimeField(default=datetime.now())
 
 
-# Create a Validation Form from the Idea model
-PhotoForm = model_form(Photo)
+photo_form = model_form(Photo)
+
+# Create a WTForm form for the photo upload.
+# This form will inhirit the Photo model above
+# It will have all the fields of the Photo model
+# We are adding in a separate field for the file upload called 'fileupload'
+class photo_upload_form(photo_form):
+	fileupload = FileField('Upload an image file', validators=[])
+
 
 	
 

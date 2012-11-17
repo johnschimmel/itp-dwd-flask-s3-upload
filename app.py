@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 import os, datetime, re
 from flask import Flask, request, render_template, redirect, abort
+from werkzeug import secure_filename
 
 # import all of mongoengine
 from flask.ext.mongoengine import mongoengine
 
 # import data models
 import models
+import boto
 
 app = Flask(__name__)   # create our flask app
-app.config['secret_key'] = os.environ.get('SECRET_KEY')
+app.secret_key = os.environ.get('SECRET_KEY') # put SECRET_KEY variable inside .env file with a random string of alphanumeric characters
 app.config['CSRF_ENABLED'] = True
 
 # --------- Database Connection ---------
 # MongoDB connection to MongoLab's database
 mongoengine.connect('mydata', host=os.environ.get('MONGOLAB_URI'))
 app.logger.debug("Connecting to MongoLabs")
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
 
 # --------- Routes ----------
 
@@ -24,23 +29,48 @@ app.logger.debug("Connecting to MongoLabs")
 def index():
 
 	# get Idea form from models.py
-	photo_form = models.PhotoForm(request.form)
+	photo_upload_form = models.photo_upload_form(request.form)
+	
 	
 	# if form was submitted and it is valid...
-	if request.method == "POST" and photo_form.validate():
-	
-		# get form data - create new idea
-		# idea = models.Idea()
-		# idea.creator = request.form.get('creator','anonymous')
-		# idea.title = request.form.get('title','no title')
-		# idea.slug = slugify(idea.title + " " + idea.creator)
-		# idea.idea = request.form.get('idea','')
-		# idea.categories = request.form.getlist('categories') # getlist will pull multiple items 'categories' into a list
+	if request.method == "POST" and photo_upload_form.validate():
+		file = request.files['fileupload']
+		app.logger.info(file)
+		app.logger.info(file.mimetype)
+		app.logger.info(dir(file))
 		
-		# idea.save() # save it
+		if file and allowed_file(file.filename):
+			# create filename, prefixed with datetime
+			now = datetime.datetime.now()
+			filename = now.strftime('%Y%m%d%H%M%s') + "-" + secure_filename(file.filename)
 
-		# redirect to the new idea page
-		return redirect('/ideas/%s' % idea.slug)
+			# connect to s3
+			s3conn = boto.connect_s3(os.environ.get('AWS_ACCESS_KEY_ID'),os.environ.get('AWS_SECRET_ACCESS_KEY'))
+
+			# open s3 bucket, create new Key/file
+			# set the mimetype, content and access control
+			b = s3conn.get_bucket(os.environ.get('AWS_BUCKET')) # bucket name defined in .env
+			k = b.new_key(b)
+			k.key = filename
+			k.set_metadata("Content-Type", file.mimetype)
+			k.set_contents_from_string(file.stream.read())
+			k.make_public()
+
+			if k and k.size > 0:
+				# create record
+				submitted_photo = models.Photo()
+				submitted_photo.title = request.form.get('title')
+				submitted_photo.description = request.form.get('description')
+				submitted_photo.postedby = request.form.get('postedby')
+				submitted_photo.filename = filename # same filename of s3 bucket file
+				submitted_photo.save()
+
+
+			return filename
+		else:
+			return "something's weird " + file.filename
+
+
 
 	else:
 
@@ -48,7 +78,7 @@ def index():
 		# render the template
 		templateData = {
 			
-			'form' : photo_form
+			'form' : photo_upload_form
 		}
 
 		return render_template("main.html", **templateData)
@@ -57,7 +87,9 @@ def index():
 def page_not_found(error):
     return render_template('404.html'), 404
 
-
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 # --------- Server On ----------
 # start the webserver

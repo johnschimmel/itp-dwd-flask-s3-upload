@@ -2,10 +2,37 @@
 
 
 {% block body %}
+	
 
-	<form method="POST" enctype=multipart/form-data>
-		<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-		<input type="file" name="file" id="file">
+    {% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li class="alert alert-error">
+                	{{ form[field_name].label.text }} - {{ error }}
+               	</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+
+	<form method="POST" enctype="multipart/form-data">
+		{{ form.csrf_token }}
+
+		{{ form.title.label }}
+		{{ form.title }}
+
+		{{ form.description.label }}
+		{{ form.description }}
+
+		{{ form.postedby.label }}
+		{{ form.postedby }}
+		<br>
+		{{ form.fileupload.label }}
+		{{ form.fileupload }}
+		<br><br>
+		<input class="btn btn-success" type="submit" value="upload">
 
 
 	</form>
