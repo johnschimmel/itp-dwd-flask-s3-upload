@@ -86,3 +86,13 @@ Open your .gitignore file and add '.env' on a new line. Save the file.
 or
 
 	foreman start
+
+
+### Step 7: Push your .env variables to Heroku 
+
+	heroku config:add SECRET_KEY=XXXXX
+	heroku config:add AWS_BUCKET=MYBUCKEYNAME
+	heroku config:add AWS_ACCESS_KEY_ID=XXXXXXXXXXXX
+	heroku config:add AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXX
+
+
