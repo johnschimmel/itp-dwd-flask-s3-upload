@@ -1,11 +1,12 @@
-## MongoDB library - Mongoengine
+## Flask uploading file to s3 with Boto
 
 [Mongoengine](http://mongoengine.org/)
 
 Adding Mongoengine to requirements.txt
 
-	Mongoengine==0.7.5
-	unidecode
+	Flask==0.9
+	Flask-mongoengine
+	boto
 
 
 ## Getting Started with MongoDB on Heroku
@@ -54,7 +55,7 @@ We must create a local configuration file to allow our local development server 
 
 Run the following command inside your code folder.
 
-	heroku config --shell > .env
+	heroku config --shell | grep MONGOLAB_URI >> .env
 
 This will create a new file, **.env**  and it will contain a single line starting with MONGOLAB_URI and followed by a long connection url. This is the username and password for your MongoLabs account.
 
