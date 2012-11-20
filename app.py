@@ -27,7 +27,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 megabyte file upload
 mongoengine.connect('mydata', host=os.environ.get('MONGOLAB_URI'))
 app.logger.debug("Connecting to MongoLabs")
 
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 
 # --------- Routes ----------
@@ -61,8 +61,6 @@ def index():
 			# connect to s3
 			s3conn = boto.connect_s3(os.environ.get('AWS_ACCESS_KEY_ID'),os.environ.get('AWS_SECRET_ACCESS_KEY'))
 
-
-			
 			# open s3 bucket, create new Key/file
 			# set the mimetype, content and access control
 			b = s3conn.get_bucket(os.environ.get('AWS_BUCKET')) # bucket name defined in .env
@@ -72,44 +70,61 @@ def index():
 			k.set_contents_from_string(uploaded_file.stream.read())
 			k.make_public()
 
-			uploaded_file.stream.seek(0) # rewind the file pointer
-			thumbnail_size = 320, 240
-			tmpImg = Image.open(uploaded_file.stream)
-			tmpImg.thumbnail(thumbnail_size,Image.ANTIALIAS)
-			t = b.new_key(b)
-			t.key = 'thumbs/%s' % filename
-			t.set_metadata("Content-Type", uploaded_file.mimetype)
-			t.set_contents_from_string(tmpImg.tostring())
-			t.make_public()
-			
-
-			
-			# if k and k.size > 0:
-			# 	# create record
-			# 	submitted_photo = models.Photo()
-			# 	submitted_photo.title = request.form.get('title')
-			# 	submitted_photo.description = request.form.get('description')
-			# 	submitted_photo.postedby = request.form.get('postedby')
-			# 	submitted_photo.filename = filename # same filename of s3 bucket file
-			# 	submitted_photo.save()
+			# save information to MONGO database
+			if k and k.size > 0:
+				
+				submitted_image = models.Image()
+				submitted_image.title = request.form.get('title')
+				submitted_image.description = request.form.get('description')
+				submitted_image.postedby = request.form.get('postedby')
+				submitted_image.filename = filename # same filename of s3 bucket file
+				submitted_image.save()
 
 
-			return filename
+			return redirect('/')
+
 		else:
 			return "uhoh there was an error " + uploaded_file.filename
 
 
 
 	else:
-
+		# get existing images
+		images = models.Image.objects.order_by('-timestamp')
 		
 		# render the template
 		templateData = {
-			
+			'images' : images,
 			'form' : photo_upload_form
 		}
 
 		return render_template("main.html", **templateData)
+
+@app.route('/delete/<imageid>')
+def delete_image(imageid):
+	
+	image = models.Image.objects.get(id=imageid)
+	if image:
+
+		# delete from s3
+	
+		# connect to s3
+		s3conn = boto.connect_s3(os.environ.get('AWS_ACCESS_KEY_ID'),os.environ.get('AWS_SECRET_ACCESS_KEY'))
+
+		# open s3 bucket, create new Key/file
+		# set the mimetype, content and access control
+		bucket = s3conn.get_bucket(os.environ.get('AWS_BUCKET')) # bucket name defined in .env
+		k = bucket.new_key(bucket)
+		k.key = image.filename
+		bucket.delete_key(k)
+
+		# delete from Mongo	
+		image.delete()
+
+		return redirect('/')
+
+	else:
+		return "Unable to find requested image in database."
 
 @app.errorhandler(404)
 def page_not_found(error):

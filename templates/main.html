@@ -1,43 +1,70 @@
 {% extends "layout/main.html" %}
 
+{% block styles %}
+<style>
+img {
+	width:320px;
+}
+</style>
 
+{% endblock %}
 {% block body %}
-	
 
-    {% if form.errors %}
-    <ul class="errors">
-        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-            {% for error in field_errors %}
-                <li class="alert alert-error">
-                	{{ form[field_name].label.text }} - {{ error }}
-               	</li>
-            {% endfor %}
-        {% endfor %}
-    </ul>
-    {% endif %}
+	<div class="row">
+		<div class="span5">
+		    {% if form.errors %}
+		    <ul class="errors">
+		        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+		            {% for error in field_errors %}
+		                <li class="alert alert-error">
+		                	{{ form[field_name].label.text }} - {{ error }}
+		               	</li>
+		            {% endfor %}
+		        {% endfor %}
+		    </ul>
+		    {% endif %}
+
+		    <h2>Upload an image</h2>
+		    <p>Behave.</p>
+			<form method="POST" enctype="multipart/form-data">
+				
+				{{ form.title.label }}
+				{{ form.title }}
+
+				{{ form.description.label }}
+				{{ form.description }}
+
+				{{ form.postedby.label }}
+				{{ form.postedby }}
+				<br>
+				{{ form.fileupload.label }}
+				{{ form.fileupload }}
+				<br><br>
+				<input class="btn btn-success" type="submit" value="upload">
 
 
-	<form method="POST" enctype="multipart/form-data">
-		
-		{{ form.title.label }}
-		{{ form.title }}
+			</form>
+		</div>
 
-		{{ form.description.label }}
-		{{ form.description }}
+		<div class="span7">
+			<h2>Images</h2>
+			<hr>
+			{% for img in images %}
+				<a title="{{img.title}}" alt="Title:{{img.title}}. Description: {{img.description}}" href="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}">
+				<img src="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}" class="img-polaroid"></a>
+				<br>
+				<h3>{{img.title}}</h3>
+				<p>{{img.description}}
+					<br>
+					{{ img.postedby }} - {{ img.timestamp.strftime("%m/%d/%y")}}
+				</p>
+				<a href="/delete/{{img.id}}" class="btn btn-small btn-danger">delete</a>
+				<hr>
+			{% endfor %}
+		</div>
 
-		{{ form.postedby.label }}
-		{{ form.postedby }}
-		<br>
-		{{ form.fileupload.label }}
-		{{ form.fileupload }}
-		<br><br>
-		<input class="btn btn-success" type="submit" value="upload">
-
-
-	</form>
+	</div><!-- row -->
 
 {% endblock %}
 
-
-{% block styles %}{% endblock %}
 {% block scripts %}{% endblock %}

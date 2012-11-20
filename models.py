@@ -10,7 +10,7 @@ class Comment(mongoengine.EmbeddedDocument):
 	comment = mongoengine.StringField()
 	timestamp = mongoengine.DateTimeField(default=datetime.now())
 
-class Photo(mongoengine.Document):
+class Image(mongoengine.Document):
 
 	title = mongoengine.StringField(max_length=120, required=True)
 	description = mongoengine.StringField()
@@ -27,7 +27,7 @@ class Photo(mongoengine.Document):
 	timestamp = mongoengine.DateTimeField(default=datetime.now())
 
 
-photo_form = model_form(Photo)
+photo_form = model_form(Image)
 
 # Create a WTForm form for the photo upload.
 # This form will inhirit the Photo model above
