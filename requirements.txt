@@ -1,3 +1,4 @@
 Flask==0.9
 Flask-mongoengine
 boto
+http://effbot.org/media/downloads/Imaging-1.1.7.tar.gz
