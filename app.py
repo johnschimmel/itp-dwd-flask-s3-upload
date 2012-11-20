@@ -41,6 +41,7 @@ def index():
 	
 	# if form was submitted and it is valid...
 	if request.method == "POST" and photo_upload_form.validate():
+		
 		uploaded_file = request.files['fileupload']
 		# app.logger.info(file)
 		# app.logger.info(file.mimetype)
@@ -56,7 +57,7 @@ def index():
 			# create filename, prefixed with datetime
 			now = datetime.datetime.now()
 			filename = now.strftime('%Y%m%d%H%M%s') + "-" + secure_filename(uploaded_file.filename)
-			thumb_filename = now.strftime('%Y%m%d%H%M%s') + "-" + secure_filename(uploaded_file.filename)
+			# thumb_filename = now.strftime('%Y%m%d%H%M%s') + "-" + secure_filename(uploaded_file.filename)
 
 			# connect to s3
 			s3conn = boto.connect_s3(os.environ.get('AWS_ACCESS_KEY_ID'),os.environ.get('AWS_SECRET_ACCESS_KEY'))
@@ -71,6 +72,7 @@ def index():
 			k.make_public()
 
 			# save information to MONGO database
+			# did something actually save to S3
 			if k and k.size > 0:
 				
 				submitted_image = models.Image()

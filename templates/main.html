@@ -50,7 +50,7 @@ img {
 			<h2>Images</h2>
 			<hr>
 			{% for img in images %}
-				<a title="{{img.title}}" alt="Title:{{img.title}}. Description: {{img.description}}" href="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}">
+				<a title="{{img.title}}" alt="Title:{{img.title}}. Description: {{img.description}}" href="https://s3.amazonaws.com/dwd_uploads/myfolder/{{img.filename}}">
 				<img src="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}" class="img-polaroid"></a>
 				<br>
 				<h3>{{img.title}}</h3>
