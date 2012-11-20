@@ -8,7 +8,14 @@ from flask.ext.mongoengine import mongoengine
 
 # import data models
 import models
+
+# Amazon AWS library
 import boto
+
+# Python Image Library
+import StringIO
+from PIL import Image
+
 
 app = Flask(__name__)   # create our flask app
 app.secret_key = os.environ.get('SECRET_KEY') # put SECRET_KEY variable inside .env file with a random string of alphanumeric characters
@@ -49,10 +56,13 @@ def index():
 			# create filename, prefixed with datetime
 			now = datetime.datetime.now()
 			filename = now.strftime('%Y%m%d%H%M%s') + "-" + secure_filename(uploaded_file.filename)
+			thumb_filename = now.strftime('%Y%m%d%H%M%s') + "-" + secure_filename(uploaded_file.filename)
 
 			# connect to s3
 			s3conn = boto.connect_s3(os.environ.get('AWS_ACCESS_KEY_ID'),os.environ.get('AWS_SECRET_ACCESS_KEY'))
 
+
+			
 			# open s3 bucket, create new Key/file
 			# set the mimetype, content and access control
 			b = s3conn.get_bucket(os.environ.get('AWS_BUCKET')) # bucket name defined in .env
@@ -62,14 +72,26 @@ def index():
 			k.set_contents_from_string(uploaded_file.stream.read())
 			k.make_public()
 
-			if k and k.size > 0:
-				# create record
-				submitted_photo = models.Photo()
-				submitted_photo.title = request.form.get('title')
-				submitted_photo.description = request.form.get('description')
-				submitted_photo.postedby = request.form.get('postedby')
-				submitted_photo.filename = filename # same filename of s3 bucket file
-				submitted_photo.save()
+			uploaded_file.stream.seek(0) # rewind the file pointer
+			thumbnail_size = 320, 240
+			tmpImg = Image.open(uploaded_file.stream)
+			tmpImg.thumbnail(thumbnail_size)
+			t = b.new_key(b)
+			t.key = 'thumbs/%s' % filename
+			t.set_metadata("Content-Type", uploaded_file.mimetype)
+			t.set_contents_from_string(tmpImg.tostring())
+			t.make_public()
+			
+
+
+			# if k and k.size > 0:
+			# 	# create record
+			# 	submitted_photo = models.Photo()
+			# 	submitted_photo.title = request.form.get('title')
+			# 	submitted_photo.description = request.form.get('description')
+			# 	submitted_photo.postedby = request.form.get('postedby')
+			# 	submitted_photo.filename = filename # same filename of s3 bucket file
+			# 	submitted_photo.save()
 
 
 			return filename
