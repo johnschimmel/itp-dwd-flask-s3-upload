@@ -75,7 +75,7 @@ def index():
 			uploaded_file.stream.seek(0) # rewind the file pointer
 			thumbnail_size = 320, 240
 			tmpImg = Image.open(uploaded_file.stream)
-			tmpImg.thumbnail(thumbnail_size)
+			tmpImg.thumbnail(thumbnail_size,Image.ANTIALIAS)
 			t = b.new_key(b)
 			t.key = 'thumbs/%s' % filename
 			t.set_metadata("Content-Type", uploaded_file.mimetype)
@@ -83,7 +83,7 @@ def index():
 			t.make_public()
 			
 
-
+			
 			# if k and k.size > 0:
 			# 	# create record
 			# 	submitted_photo = models.Photo()
