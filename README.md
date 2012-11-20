@@ -1,21 +1,101 @@
 ## Flask uploading file to s3 with Boto
 
-[Mongoengine](http://mongoengine.org/)
+## Skip to Step 5 if you have an existing app from class and you want to add file upload support.
 
-Adding Mongoengine to requirements.txt
+### Our requirements.txt
 
 	Flask==0.9
 	Flask-mongoengine
 	boto
 
+## Changes to App.py & Models.py
 
-## Getting Started with MongoDB on Heroku
+### We're only requiring Flask-mongoengine
 
-We will be using MongoLabs as our MongoDB host service, they have a free starter plan that we can easily associate with our Heroku accounts. When we have added the MongoLabs service we will have a connection string that includes username, password and URI to the database server.
+Since we started with Databases and Form validation we have been including both mongoengine and flask-mongoengine. This was bad form on my part.  
+
+Mongoengine and Flask-mongoengine do the same thing but Flask-mongoengine is a little better for our needs.
+
+### app.py updates
+
+Top of the file currently, we imported mongoengine
+
+	# import all of mongoengine
+	from mongoengine import *
+
+Change this to...
+
+	# import all of mongoengine
+	from flask.ext.mongoengine import mongoengine
+
+
+We connected to the database a few lines from the top with
+
+	# --------- Database Connection ---------
+	# MongoDB connection to MongoLab's database
+	connect('mydata', host=os.environ.get('MONGOLAB_URI'))
+
+Change this to...
+
+	mongoengine.connect('mydata', host=os.environ.get('MONGOLAB_URI'))
+
+
+### models.py updates
+
+The import and from/import statements at the top of **models.py** is currently
+
+	from mongoengine import *
+	from flask.ext.mongoengine.wtf import model_form
+	from datetime import datetime
+
+Change to this...
+
+	from flask.ext.mongoengine.wtf import model_form
+	from wtforms.fields import * # for our custom signup form
+	from flask.ext.mongoengine.wtf.orm import validators
+	from flask.ext.mongoengine import *
+	from datetime import datetime
+
+We are updating the imports to use more field validation techniques.
+
+Our models change a bit too. Previously we defined Models as such, 
+
+	class Blogpost(Document):
+		title = StringField(max_length=120, required=True, verbose_name="First name")
+		description = StringField(required=True)
+		...
+
+We now define models like so, 
+
+	class Blogpost(mongoengine.Document):
+		title = mongoengine.StringField(max_length=120, required=True)
+		description = mongoengine.StringField()
+		...
+
+We create forms like this
+
+	photo_form = model_form(Image)
+
+
+But we can also use WTForms directly like this,
+
+	# Create a WTForm form for the photo upload.
+	# This form will inhirit the Photo model above
+	# It will have all the fields of the Photo model
+	# We are adding in a separate field for the file upload called 'fileupload'
+
+	class photo_upload_form(photo_form):
+		fileupload = FileField('Upload an image file', validators=[])
+
+**photo_upload_form** can be used like any other form we use before. Using WTForm directly gives us a few more options than we previously had. We will use this again in the User management app demo.
+
+
+
+## Getting Started 
 
 ### Step 1 : Download code, setup Git, heroku create
 
-1. Download the sample code from [Github](https://github.com/johnschimmel/ITP-DWD-Fall-2012-Week-5)
+1. Download the sample code from [Github](https://github.com/johnschimmel/itp-dwd-flask-s3-upload)
 2. Navigate to code directory in Terminal. Create Git repo
 
 		git init
@@ -61,7 +141,7 @@ This will create a new file, **.env**  and it will contain a single line startin
 
 .env
 
-	MONGOLAB_URI=mongodb://heroku_app8083291:sadlfkweweroi........
+	MONGOLAB_URI=mongodb://heroku_app8083291:sadlfkwewe........
 
 ### Step 4: Add .env to .gitignore file
 
@@ -72,14 +152,53 @@ Open your .gitignore file and add '.env' on a new line. Save the file.
 .gitignore
 
 	.env
-
+	venv
+	*.pyc
+	
 
 ### Step 5: Register with Amazon Web Services
 
-** INFORMATION WILL BE ADDED SOON
+Create an account on Amazon Web Services, you can use your Amazon account, [http://aws.amazon.com/console/](http://aws.amazon.com/console/) Click on the Sign Up button.
+
+### Step 6: Log in and create new S3 bucket
+
+When you're registered and logged into the AWS site, visit the console, [https://console.aws.amazon.com/console/home?#](https://console.aws.amazon.com/console/home?#)
+
+In the Storage and Content Delivery section click on S3, scalable storage in the cloud, [https://console.aws.amazon.com/s3/home](https://console.aws.amazon.com/s3/home).
+
+Now we will create a bucket (like a directory). The bucket will be the container for your uploaded files. On the left panel of the S3 console, click 'Create Bucket'. Provide a **bucket name** and leave the **Region** to US Standard. Then click **Create**.
+
+### Step 7: Add environment variables to .env and Heroku
+
+Inside the AWS Console, on the top menu bar click on your name, then click **SECURITY CREDENTIALS**.
+
+On the SECURITY CREDENTIALS page, you will have access to
+
+* ACCESS KEY ID
+* SECRET ACCESS KEY
+
+Open your .env file and add 3 new variables for Amazon AWS
+
+**.env**
+
+	AWS_BUCKET=YOURBUCKNAME
+	AWS_ACCESS_KEY_ID=XXXXXXXXXXXX
+	AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX
+
+Save your .env file.
+
+Now let's push the new AWS variable to Heroku config, run the commands in Terminal
+
+	heroku config:add AWS_BUCKET=YOURBUCKNAME
+	heroku config:add AWS_ACCESS_KEY_ID=XXXXXXXXXXX
+	heroku config:add AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX 
+
+You can confirm the AWS variables are on heroku by running the command,
+
+	heroku config
 
 
-### Step 6: Start your servers
+### Start your servers
 
 	. start
 
