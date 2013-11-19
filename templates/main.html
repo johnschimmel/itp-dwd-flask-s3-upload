@@ -11,7 +11,7 @@ img {
 {% block body %}
 
 	<div class="row">
-		<div class="span5">
+		<div class="col-md-5">
 		    {% if form.errors %}
 		    <ul class="errors">
 		        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
@@ -26,20 +26,24 @@ img {
 
 		    <h2>Upload an image</h2>
 		    <p>Behave.</p>
-			<form method="POST" enctype="multipart/form-data">
+			<form method="POST" enctype="multipart/form-data" role="form">
 				{{ form.csrf_token }}
-				
-				{{ form.title.label }}
-				{{ form.title }}
-
-				{{ form.description.label }}
-				{{ form.description }}
-
-				{{ form.postedby.label }}
-				{{ form.postedby }}
-				<br>
-				{{ form.fileupload.label }}
-				{{ form.fileupload }}
+				<div class="form-group">
+					{{ form.title.label }}
+					{{ form.title(class="form-control") }}
+				</div>
+				<div class="form-group">
+					{{ form.description.label }}
+					{{ form.description(class="form-control") }}
+				</div>
+				<div class="form-group">
+					{{ form.postedby.label }}
+					{{ form.postedby(class="form-control") }}
+				</div>
+				<div class="form-group">
+					{{ form.fileupload.label }}
+					{{ form.fileupload(class="btn btn-info") }}
+				</div>
 				<br><br>
 				<input class="btn btn-success" type="submit" value="upload">
 
@@ -47,12 +51,12 @@ img {
 			</form>
 		</div>
 
-		<div class="span7">
+		<div class="col-md-7">
 			<h2>Images</h2>
 			<hr>
 			{% for img in images %}
 				<a title="{{img.title}}" alt="Title:{{img.title}}. Description: {{img.description}}" href="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}">
-				<img src="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}" class="img-polaroid"></a>
+				<img src="https://s3.amazonaws.com/dwd_uploads/{{img.filename}}" width="480"></a>
 				<br>
 				<h3>{{img.title}}</h3>
 				<p>{{img.description}}
