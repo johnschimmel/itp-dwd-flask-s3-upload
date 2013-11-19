@@ -4,9 +4,9 @@
 
 ### Our requirements.txt
 
-	Flask==0.9
-	Flask-mongoengine
-	boto
+	Flask==0.10
+	Flask-mongoengine==0.7.0
+	boto==2.17.0
 
 ## Changes to App.py & Models.py
 
