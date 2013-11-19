@@ -64,14 +64,14 @@ def index():
 			# open s3 bucket, create new Key/file
 			# set the mimetype, content and access control
 			b = s3conn.get_bucket(os.environ.get('AWS_BUCKET')) # bucket name defined in .env
-			k = b.new_key(b)
-			k.key = filename
-			k.set_metadata("Content-Type", uploaded_file.mimetype)
-			k.set_contents_from_string(uploaded_file.stream.read())
-			k.make_public()
+			
+			k = b.new_key(b) # create a new Key (like a file)
+			k.key = filename # set filename
+			k.set_metadata("Content-Type", uploaded_file.mimetype) # identify MIME type
+			k.set_contents_from_string(uploaded_file.stream.read()) # file contents to be added
+			k.set_acl('public-read') # make publicly readable
 
-			# save information to MONGO database
-			# did something actually save to S3
+			# if content was actually saved to S3 - save info to Database
 			if k and k.size > 0:
 				
 				submitted_image = models.Image()
@@ -138,7 +138,7 @@ def allowed_file(filename):
 # --------- Server On ----------
 # start the webserver
 if __name__ == "__main__":
-	app.debug = True
+	app.debug = os.environ.get('DEBUG',False)
 	
 	port = int(os.environ.get('PORT', 5000)) # locally PORT 5000, Heroku will assign its own port
 	app.run(host='0.0.0.0', port=port)
