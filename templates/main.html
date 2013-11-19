@@ -27,6 +27,7 @@ img {
 		    <h2>Upload an image</h2>
 		    <p>Behave.</p>
 			<form method="POST" enctype="multipart/form-data">
+				{{ form.csrf_token }}
 				
 				{{ form.title.label }}
 				{{ form.title }}

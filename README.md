@@ -184,14 +184,17 @@ Open your .env file and add 3 new variables for Amazon AWS
 	AWS_BUCKET=YOURBUCKNAME
 	AWS_ACCESS_KEY_ID=XXXXXXXXXXXX
 	AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX
+	SECRET_KEY=SOMETHINGSECRETFORFLASK
 
 Save your .env file.
 
 Now let's push the new AWS variable to Heroku config, run the commands in Terminal
 
+	heroku config:add SECRET_KEY=SOMETHINGSECRETFORFLASK
 	heroku config:add AWS_BUCKET=YOURBUCKNAME
-	heroku config:add AWS_ACCESS_KEY_ID=XXXXXXXXXXX
-	heroku config:add AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX 
+	heroku config:add AWS_ACCESS_KEY_ID=XXXXXXXXXXXX
+	heroku config:add AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXX
+
 
 You can confirm the AWS variables are on heroku by running the command,
 
@@ -205,13 +208,4 @@ You can confirm the AWS variables are on heroku by running the command,
 or
 
 	foreman start
-
-
-### Step 7: Push your .env variables to Heroku 
-
-	heroku config:add SECRET_KEY=XXXXX
-	heroku config:add AWS_BUCKET=MYBUCKEYNAME
-	heroku config:add AWS_ACCESS_KEY_ID=XXXXXXXXXXXX
-	heroku config:add AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXX
-
 
