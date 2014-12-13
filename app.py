@@ -69,7 +69,7 @@ def index():
 			k.key = filename # set filename
 			k.set_metadata("Content-Type", uploaded_file.mimetype) # identify MIME type
 			k.set_contents_from_string(uploaded_file.stream.read()) # file contents to be added
-			k.set_acl('public-read') # make publicly readable
+                        k.make_public()
 
 			# if content was actually saved to S3 - save info to Database
 			if k and k.size > 0:
@@ -78,6 +78,7 @@ def index():
 				submitted_image.title = request.form.get('title')
 				submitted_image.description = request.form.get('description')
 				submitted_image.postedby = request.form.get('postedby')
+                                submitted_image.url = k.generate_url(expires_in=0, query_auth=False, force_http=True)
 				submitted_image.filename = filename # same filename of s3 bucket file
 				submitted_image.save()
 
