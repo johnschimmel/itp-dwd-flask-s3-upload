@@ -15,6 +15,7 @@ class Image(mongoengine.Document):
 	title = mongoengine.StringField(max_length=120, required=True)
 	description = mongoengine.StringField()
 	postedby = mongoengine.StringField(max_length=120, required=True, verbose_name="Your name")
+        url = mongoengine.URLField()
 	
 	tags = mongoengine.ListField( mongoengine.StringField())
 

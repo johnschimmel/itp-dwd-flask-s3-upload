@@ -116,14 +116,14 @@ But we can also use WTForms directly like this,
 
 Heroku offers a [lot of different Add-ons](https://addons.heroku.com/) for your apps. Many different types of databases, image tools, cache utilities are available from 3rd party companies. Many offer a trial plan to test and develop with before you commit to a paid plan.
 
-MongoLabs offers a [250MB MongoDB instance for free](https://addons.heroku.com/mongolab) (see here) : ) How wonderful.
+MongoLabs offers a [496 MB MongoDB instance for free](https://addons.heroku.com/mongolab) (see here) : ) How wonderful.
 
 To install the MongoLabs 
 
 * Navigate to the code folder of your app
-* In Terminal, add the MongoLab starter plan
+* In Terminal, add the MongoLab sandbox plan
 
-		heroku addons:add mongolab:starter
+		heroku addons:add mongolab:sandbox
 
 This has added MongoLab to your app.
 
